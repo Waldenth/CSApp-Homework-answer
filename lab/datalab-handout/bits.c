@@ -318,10 +318,10 @@ int howManyBits(int x) {
     x = (sign&~x)|(~sign&x);//如果x为正则不变，否则按位取反（这样好找最高位为1的，原来是最高位为0的，这样也将符号位去掉了）
     // 不断缩小范围
     b16 = !!(x>>16)<<4;//高十六位是否有1 先取x高16位,再!!判断有无1,再右移4位 (*16
-    x = x>>b16;//如果有（至少需要16位），则将原数右移16位,如果有b16=1<<4=16,否则b16=0
+    x = x>>b16;//如果有（至少需要16位），则将原数右移16位,因为如果有则b16=1<<4=16,x成为0x0000(原高16位);否则b16=0
     b8 = !!(x>>8)<<3;//剩余位高8位是否有1
     x = x>>b8;//如果有（至少需要16+8=24位），则右移8位
-    b4 = !!(x>>4)<<2;//同理
+    b4 = !!(x>>4)<<2;//同理,
     x = x>>b4;
     b2 = !!(x>>2)<<1;
     x = x>>b2;
@@ -343,13 +343,28 @@ int howManyBits(int x) {
  *   Max ops: 30
  *   Rating: 4
  */
+//求2乘一个浮点数(单精度)
 unsigned floatScale2(unsigned uf) { 
+    // exp 获取 uf的 E阶码 8位并右移至低8位
     int exp = (uf&0x7f800000)>>23;
+    // sign 结果是  0b[uf的符号位]00..0
     int sign = uf&(1<<31);
-    if(exp==0) return uf<<1|sign;
-    if(exp==255) return uf;
+    
+    //如果是非规格化数,阶码域全0,此时数值是0.[M部分]
+    //规格化和非规格化过渡是平滑的,非规格化数直接左移1位并复原符号位即是乘以2
+    // ?[0x00][1100....] *2 = (2^{-1}+2^{-2})*2 
+    // ?[0x01][1000....] = 1+2^{-1} (规格化了,有前导1了)
+    if(exp==0) 
+        return uf<<1|sign;
+    //是特殊值 无穷或者NaN,直接返回
+    if(exp==255) 
+        return uf;
+    // 如果指数+1之后为指数为255,说明乘以2后到达特殊值情况,则返回原符号无穷大
     exp++;
-    if(exp==255) return 0x7f800000|sign;
+    if(exp==255) 
+        return 0x7f800000|sign;
+    // 否则返回指数+1(前面已经有exp++了)之后的原符号数
+                        // 保留uf的符号位和尾数位,指数位清零,用对应的exp给指数位赋值
     return (exp<<23)|(uf&0x807fffff);
     //return 2; 
 }
@@ -365,21 +380,39 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
+// 将浮点数转换为整数
 int floatFloat2Int(unsigned uf) { 
-     int s_    = uf>>31;
+    // 获取符号位并把s_全部位置为符号位
+    int s_    = uf>>31;
+    // 获取指数位并转换(-Bias)为真实表示值
     int exp_  = ((uf&0x7f800000)>>23)-127;
+    // 获取尾数的23(第0-22)位,并把第23位置为1 (前导1)
     int frac_ = (uf&0x007fffff)|0x00800000;
-    if(!(uf&0x7fffffff)) return 0;
+    
+    // 如果uf除去符号位外全0
+    if(!(uf&0x7fffffff)) 
+        return 0;
+    // 真实指数大于31（frac部分是大于等于1的，1<<31位会覆盖符号位），返回规定的溢出值0x80000000u
+    if(exp_ > 31) 
+        return 0x80000000;
+    // 真实指数小于0,则绝对值必是一个0-1的小数,取整0
+    if(exp_ < 0) 
+        return 0;
+    // 指数大于23,小数部分不再是小数,为整数部分,把小数转换为应该的整数 ([1]frac*2 ^{exp})
+    if(exp_ > 23) 
+        frac_ <<= (exp_-23);
+    else 
+        frac_ >>= (23-exp_);
 
-    if(exp_ > 31) return 0x80000000;
-    if(exp_ < 0) return 0;
-
-    if(exp_ > 23) frac_ <<= (exp_-23);
-    else frac_ >>= (23-exp_);
-
-    if(!((frac_>>31)^s_)) return frac_;
-    else if(frac_>>31) return 0x80000000;
-    else return ~frac_+1;
+    // 如果和原符号相同则直接返回
+    if(!((frac_>>31)^s_)) 
+        return frac_;
+    // 转整的frac的第31位是1,符号与原来不同,现在是负,原来是正,溢出
+    else if(frac_>>31) 
+        return 0x80000000;
+    // 符号和原来的不同,31位是0,现在是正,原来是负,应该返回的是负数,返回数值的相反数补码
+    else 
+        return ~frac_+1;
     //return 2; 
 }
 /*
@@ -395,11 +428,18 @@ int floatFloat2Int(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
+// 求2.0^{x}
 unsigned floatPower2(int x) { 
     int bias = 127;
-    if(x<-150) return 0;
-    if(x>127) return 0xff<<23;
-    if(x<-127) return 0x1<<(150-x);
+    /*
+    if(x<-150) 
+        return 0;
+    */
+    if(x>127) // res>= 2^128,单精度没法表示
+        return 0xff<<23;//返回正无穷大 0b0111 1111 1 0000 0...0
+    if(x<-127) // res<= 2^{-128},没法表示
+        return 0;//全0
+    // x+bias即乘幂后的指数 <<23 移动到对应的位置
     return (x+bias)<<23;
     //return 2; 
 }
