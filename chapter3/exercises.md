@@ -48,3 +48,45 @@ long t = 5*x+2*y+8*z;
 
 `subq rdx,rax`,target is `%rax`,value is 0x100-0x3=0xFD
 
+#### 3.9
+
+![image-20201101135412460](assets/image-20201101135412460.png)
+
+```ASM
+shift_ledt44_rightn:
+	movq %rdi,%rax ; rax<-x
+	salq $4 , %rax ;x<<4
+	movl %esi,%ecx ;取n低32位存入rcx低32位
+	sarq %cl,%rax  ;64位数据移位量是cl的低6位                              
+```
+
+#### 3.10
+
+![image-20201101141926175](assets/image-20201101141926175.png)
+
+```asm
+orq rsi,rdi -> rdi=rsi | rdi -> x=x | y
+sarq 3,rdi ->  rdi=rdi>>3 -> x=x>>3
+notq rdi -> rdi=~rdi -> x=~x
+movq rdx,rax -> rax = z
+subq rdi,rax -> rax=rax-x
+```
+
+转换为C语言
+
+```c
+long t1 = x|y;
+long t2 = t1>>3;
+long t3 = ~t2;
+long t4 = z-t3;
+```
+
+#### 3.11
+
+![image-20201101142825696](assets/image-20201101142825696.png)
+
+A: 用于将寄存器`rdx`清零
+
+B：`mov $0, %rax`
+
+C: `xorq`版本代码需要3字节，而`movq`版本需要7字节，
