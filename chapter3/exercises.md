@@ -253,3 +253,131 @@ long test(long x,long y,long z){
 }
 ```
 
+#### 3.19
+
+ ![image-20201103211410743](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103211410743.png)
+
+##### A:
+
+利用上文旁注公式，当模式随机，预测错误概率为$p=0.5$，此时平均需要31个周期，$T_{ran}=31$，非常可预测，$T_{ok}=16$，因此预测错误惩罚$T_{MP}=2(31-16)=30$
+
+##### B:
+
+分支预测错误，时间是正常运行时间+惩罚时间=$16+30=46$
+
+#### 3.20
+
+![image-20201103212608918](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103212608918.png)
+
+##### A：
+
+OP进行的是除法`/`操作
+
+##### B：
+
+根据2.3.7节有符号补码除法，这里是除以8=$2^3$，是2的整数次幂，可以进行特定的优化，如果是负数，要先加上偏移量7，除以8就是算数右移3位`>>3`
+
+```asm
+arith:
+	leaq 7(%rdi),%rax ; (rax)temp=7+x
+	testq %rdi,%rdi; 测试rdi-rdi,给标志寄存器置位
+	cmovns %rdi,%rax ; 条件传送,if (x>=0) temp=x,即正数不进行加偏移操作
+	sarq $3,%rax; >>3 算数右移3位,除以8
+	ret
+```
+
+#### 3.21
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103214928550.png" alt="image-20201103214928550" style="zoom:50%;" />
+
+```c
+long test(long x,long y){
+	long val =8*x;
+    if(y>0){
+		if(x<y)
+        	val=y-x;
+        else
+            val=x&y;
+    }else if(y<=-2){
+		val=x+y;
+    }
+    return val;
+}
+```
+
+#### 3.23
+
+![image-20201103220328090](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103220328090.png)
+
+##### A:
+
+由`testq`指令显然`%rdx`存放`n`，或者由第5行`leaq (rdi,rdi),rdx   rdx=rdi+rdi=2*rdi=2*x`得到`rdx`存放`n`
+
+`rax`初始化为`x`表示x，`rdx`初始化为`2x`，`rcx`初始化为`x*x`，表示y
+
+##### B:
+
+编译器认为指针`p`总是指向`x`，表达式`*(p)++`，能够实现x加1，代码第7行将C代码的`x+=y`;`*(p)++`结合成了一个算式
+
+##### C：
+
+```asm
+; x initially in %rdi
+dw_loop:
+	movq %rdi,%rax; rax=x
+	movq %rdi,%rcx; rcx=x
+	imulq %rdi,%rcx; rcx=x*x
+	leaq (%rdi,%rdi),%rdx; rdx=x+x=2x
+.L2:
+	leaq 1(%rcx,%rax),%rax; rax=x+x*x+1
+	subq $1,%rdx; rdx=rdx-1
+	testq %rdx,%rdx; rdx&rdx
+	jg .L2; if rdx >0 jump to .L2
+	rep
+```
+
+#### 3.26
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103222929842.png" alt="image-20201103222929842" style="zoom: 33%;" />
+
+##### A:
+
+代码在第3行跳到.L5开始测试，这是跳转到中间的翻译方法。
+
+##### B：
+
+`jne`跳转的条件是不相等或者非零
+
+```c
+long fun_a(unsigned long x){
+	long val=0;
+    while(x){
+		val^=x;
+        x>>=1;
+    }
+    return val&0x1;
+}
+```
+
+##### C:
+
+由于参数视为无符号，右移是逻辑添零右移。
+
+函数用于计算参数x的奇偶性，有奇数个1返回，偶数个1返回0
+
+#### 3.32
+
+![image-20201103232211824](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103232211824.png)
+
+![image-20201103232222726](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103232222726.png)
+
+| F1   | 0X400548 | lea   | 10   | -    | -    | 0x7fffffffe818 | 0x400565 | 最终返回回的地址压栈 |
+| ---- | -------- | ----- | ---- | ---- | ---- | -------------- | -------- | -------------------- |
+| F2   | 0x40054C | sub   | 10   | 11   | -    | 0x7fffffffe818 | 0x400565 |                      |
+| F3   | 0x400550 | callq | 10   |      |      |                |          |                      |
+| L1   |          |       |      |      |      |                |          |                      |
+| L2   |          |       |      |      |      |                |          |                      |
+| L3   |          |       |      |      |      |                |          |                      |
+| F4   |          |       |      |      |      |                |          |                      |
+| M2   |          |       |      |      |      |                |          |                      |
+
