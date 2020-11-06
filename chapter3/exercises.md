@@ -1,4 +1,4 @@
-#### 3.6
+####    3.6
 
 ![image-20201031215853009](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201031215853009.png)
 
@@ -382,4 +382,46 @@ long fun_a(unsigned long x){
 | L3   | 0x400547 | retq  | 9      | 11      | 99   | 0x7fffffffe810 | 0x400555 | 从last返回99               |
 | F4   | 0x400555 | repz  | 9      | 11      | 99   | 0x7fffffffe818 | 0x400565 | 从first返回99              |
 | M2   | 0x400565 | mov   | 9      | 11      | 99   | 0x7fffffffe820 | -        | 继续执行main               |
+
+#### 3.33
+
+![image-20201106141335511](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201106141335511.png)
+
+若
+
+```asm
+movslq %edi,%rdi; rdi存储edi, 在这一情况下是a，双字符号扩展送至4字寄存器rdi
+addq %rdi ,(%rdx) ;*u+=a, (%rdx)+=%rdi，因此%rdx存储的是&u,%rdi存储的是a
+addb %sil,(%rcx) ; *v+=b, (%rcx)+=%sil，因此%rcx存储的是&v,%sil存储的是b
+```
+
+a通过`%edi`作为第一个参数传递，将其从4字节转换为8字节，a必是`int`类型，u则是一个`long int *`指针
+
+`%sil`是一个单字节寄存器，加到`(%rcx)`指向的内存区，因此v一定就是`char*`，而`%sil`是b的低位字节，b数据的类型无法确定。它的大小可以说1、2、4、8字节。接着注意到返回类型， `rax`是返回值寄存器。这里返回低32位数据6，而`sizeof(a)=sizeof(int)=4`，因此b是双字节数据类型，应该是`short`
+
+```c
+int procprob(int a,short b,long *u,char* v);
+```
+
+另外一种答案是两个加法指令表示的C代码的顺序相反，这并不影响C代码的原意
+
+```c
+int procprob(int b,short a,long * v,char *u);
+```
+
+#### 3.34
+
+![image-20201106144905453](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201106144905453.png)
+
+##### A:
+
+代码9-14行将局部值`a0-a5`保存在寄存器`rbx,r15,r14...rbp`中，、
+
+##### B：
+
+局部变量`a6,a7`在15-18行中分别先用`rax,rdx`取出后存在栈指针偏移量为0和8的地方
+
+##### C：
+
+代码只压了6个寄存器，因此寄存器最多只能存储6个参数，在存储完6个局部变量后，程序用完了所有被调用着保存的寄存器，剩下的两个值需要保存到栈上。
 
