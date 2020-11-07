@@ -373,7 +373,7 @@ long fun_a(unsigned long x){
 
 | 标号 | PC       | 指令  | %rdi   | %rsi    | %rax | %rsp           | *%rsp    | 描述                       |
 | ---- | -------- | ----- | ------ | ------- | ---- | -------------- | -------- | -------------------------- |
-| M1   | 0x400560 | callq | 10     | -       | -    | 0x7fffffffe820 | -        | 掉哟first(10)              |
+| M1   | 0x400560 | callq | 10     | -       | -    | 0x7fffffffe820 | -        | 调用first(10)              |
 | F1   | 0X400548 | lea   | 10     | -       | -    | 0x7fffffffe818 | 0x400565 | 最终返回回的地址压栈       |
 | F2   | 0x40054c | sub   | 10     | 10+1=11 | -    | 0x7fffffffe818 | 0x400565 |                            |
 | F3   | 0x400550 | callq | 10-1=9 | 11      | -    | 0x7fffffffe818 | 0x400565 | 调用last(9,11)             |
@@ -424,4 +424,307 @@ int procprob(int b,short a,long * v,char *u);
 ##### C：
 
 代码只压了6个寄存器，因此寄存器最多只能存储6个参数，在存储完6个局部变量后，程序用完了所有被调用着保存的寄存器，剩下的两个值需要保存到栈上。
+
+#### 3.35
+
+![image-20201107140937751](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107140937751.png)
+
+##### A：
+
+```asm
+; x in %rdi
+rfun:
+	pushq %rbx; rbx压栈,说明该寄存器要被本函数调用
+	movq %rdi,%rbx; rbx=rdi=x 
+	movl $0,%eax; eax=0 (rax的低32位)
+	testq %rdi,%rdi; rdi&rdi
+	je .L2  	;rdi为零跳转
+	shrq $2,$rdi; 逻辑右移
+	call rfun	;再次调用rfun
+	addq %rbx,%rax; 返回值rax+=rbx (x)
+.L2:
+	popq %rbx
+	ret
+```
+
+在寄存器`%rbx`中存储的值是每次调用`rfun`参数`x`的值，可以用来计算结果表达式
+
+##### B：
+
+```c
+long rfun(unsigned long x){
+    if(x==0)
+        return 0;
+   	unsigned long nx=x>>2;
+    long rv=rfun(nx);
+    return x+rv
+}
+```
+
+#### 3.36
+
+![image-20201107142315010](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107142315010.png)
+
+| 数组 | 元素大小(byte)X86-64 | 整个数组的大小 | 起始地址 | 元素i    |
+| ---- | -------------------- | -------------- | -------- | -------- |
+| S    | 2                    | 14             | $x_S$    | $x_S+2i$ |
+| T    | 8                    | 24             | $x_T$    | $x_T+8i$ |
+| U    | 8                    | 48             | $x_U$    | $x_U+8i$ |
+| V    | 4                    | 32             | $x_V$    | $x_V+4i$ |
+| W    | 8                    | 32             | $x_W$    | $x_W+8i$ |
+
+#### 3.37
+
+![image-20201107142935160](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107142935160.png)
+
+| 表达式   | 类型   | 值            | 汇编代码                     |
+| -------- | ------ | ------------- | ---------------------------- |
+| S+1      | short* | $x_S+2 $      | `leaq 2(%rdx),%rax`          |
+| S[3]     | short  | $M[x_S+6]$    | `movw 6(%rdx),%ax`           |
+| &S[i]    | short* | $x_S+2i $     | `leaq (%rdx,%rcx,2),%rax`    |
+| S[4*i+1] | short  | $M[x_S+8i+2]$ | `movw 2(%rdx,%rcx,8),%ax`    |
+| S+i-5    | short* | $x_S+2i-10$   | `leaq -10(%rdx,%rcx,2),%rax` |
+
+#### 3.38
+
+![image-20201107144138239](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107144138239.png)
+
+```asm
+; long sum_element(long i,long j)
+; i in rdi, j in rsi
+; P,Q即两个矩阵的基地址
+sum_element:
+	leaq 0(,%rdi,8),%rdx	; rdx= 8i
+	subq %rdi,%rdx			; rdx=rdx-rdi=8i-i=7i
+	addq %rsi,%rdx			; rdx=rdx+rsi=7i+j
+	leaq (%rsi,%rsi,4),%rax	; rax=4rsi+rsi=5rsi=5j
+	addq %rax,%rdi			; rdi=rdi+rax=i+5j
+	movq Q(,%rdi,8),%rax	; rax=M[Q+8rdi]=M[Q+8(5j+i)]
+	addq P(,%rdx,8),%rax	; rax=M[Q+8(5j+i)]+M[P+8rdx]=M[Q+8(5j+i)]+M[P+8(7i+j)]
+	ret; 返回rax
+```
+
+可以看出，对于矩阵P的引用是在字节偏移$8\times (7i+j)$的地方，对矩阵Q的引用是在字节偏移$8\times (5j+i)$的地方，可以确定，矩阵P有7列，矩阵Q有5列
+
+N=7，M=5
+
+#### 3.39
+
+![image-20201107150452642](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107150452642.png)
+
+公式3.1：
+$$
+\begin{align*}
+&数组声明\quad T\quad D[R][C]\\
+\\
+&\&D[i][j]=x_D+L(C·i+j)
+\end{align*}
+$$
+
+- 对于L=4，C=16，j=0，指针`Aptr`等于$x_A+4\times (16i+0)=x_A+64i$
+- 对于L=4，C=16，i=0和j=k，指针`Bptr`等于$x_B+4\times(16\times0+k)=x_B+4k$
+- 对于L=4，C=16，i=16和j=k，`Bend`等于$x_B+4\times(16\times16+k)=x_B+1024+4k$
+
+#### 3.41
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107151955312.png" alt="image-20201107151955312" style="zoom: 33%;" />
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107152013963.png" alt="image-20201107152013963" style="zoom:50%;" />
+
+##### A：
+
+结构体的布局应该如下：
+
+```
+0                     7 8        11 12       15 16                  23 24..
++----------------------+-----------+-----------+----------------------+
+|         p            |    s.x    |    s.y    |         next         |
++----------------------+-----------+-----------+----------------------+
+
+```
+
+##### B:
+
+24个字节
+
+##### C:
+
+```asm
+; void sp_init(struct prob *sp)
+; sp in %rdi
+sp_init:
+	movl 12(%rdi),%eax	; eax= M[sp+12] =s.y
+	movl %eax,8(%rdi)	; M[sp+8] (s.x) = eax = s.y 
+	leaq 8(%rdi),%rax	; rax = rdi+8 = sp+8
+	movq %rax,(%rdi)	; M[sp] (p) = rax = sp+8
+	movq %rdi,16(%rdi)  ; sp+16 (next) = rdi = sp
+	ret
+```
+
+```C
+void sp_init(struct prob *sp){
+	sp->s.x=sp->s.y;
+    sp->p = & (sp->s.x);
+    sp->next= sp;
+}
+```
+
+#### 3.42
+
+![image-20201107154210309](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107154210309.png)
+
+ELE结构体：
+
+```
+OFFSET: 0           7 8         15 16...
+        +------------+------------+
+        |      v     |     *p     |
+        +------------+------------+
+```
+
+##### A:
+
+```asm
+; long fun (struct ELE*ptr)
+; ptr in %rdi
+fun:
+	movl $0,%eax ; eax(rax低32位)清零
+	jmp .L2		 ; 无条件跳转L2
+.L3:
+	addq (%rdi),%rax ; rax+=*ptr
+	movq 8(%rdi),%rdi ; rdi(ptr)= M[ptr+8]
+.L2:
+	testq %rdi,%rdi	; ptr&ptr  
+	jne .L3 ;不为0跳转L3
+	rep
+```
+
+```c
+long fun (struct ELE *ptr){
+	long val=0;
+    while(ptr){
+        val+= ptr->v; // (*ptr).v
+        ptr= ptr-> p;
+	}
+}
+```
+
+##### B:
+
+结构体可以看成是单链表的一个元素，fun函数计算这个单链表所有元素之和
+
+#### 3.43
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107160413798.png" alt="image-20201107160413294" style="zoom:80%;" />
+
+<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107160427767.png" alt="image-20201107160427767" style="zoom: 33%;" />
+
+| expr                 | type   | 代码                                                         |
+| -------------------- | ------ | ------------------------------------------------------------ |
+| `up->t1.u`           | long   | `movq (%rdi),%rax`  `movq %rax,(%rsi)`                       |
+| `up->t1.v`           | short  | `movw 8(%rdi),%ax; movw %ax, (%rsi)`                         |
+| `&up->t1.w`          | char*  | `addq $10,%rdi; movq %rdi,(%rsi)`                            |
+| `up->t2.a`           | `int*` | `movq %rdi,(%rsi)`                                           |
+| `up->t2.a[up->t1.u]` | `int`  | `movq (%rdi),%rax; movl (%rdi,%rax,4),%eax;movl %eax,(%rsi)` |
+| `*up->t2.p`          | char   | `movq 8(%rdi),%rax;movb (%rax),%al; movb %al,(%rsi)`         |
+
+```asm
+movq (%rdi),%rax ; 将*up (内存地址up处数据)存入寄存器rax
+movl (%rdi,%rax,4),%eax; 将内存地址up+4*(*up)处的数据存入eax
+; 这是因为 t1.u也是在内存up处， *up=u,而a数组是int,一个4字节,因此偏移是4* (*up)=4u
+```
+
+#### 3.44
+
+![image-20201107201242985](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107201242985.png)
+
+##### A:
+
+| i                c                j                d | 总共 | 对齐 |
+| ---------------------------------------------------- | ---- | ---- |
+| 0               4                8               12  | 16   | 4    |
+
+##### B:
+
+| i                c                d               j | 总共 | 对齐 |
+| --------------------------------------------------- | ---- | ---- |
+| 0               4                5               8  | 16   | 8    |
+
+```
+0                   3   4     5   6      7    8                           15 16
++--------------------+-----+-----+-----+-----+------------------------------+
+|        i           |  c  |  d  |   间隙     |              j               |
++--------------------+-----+-----+-----+-----+------------------------------+
+```
+
+##### C:
+
+| w                   c  | 总共 | 对齐 |
+| ---------------------- | ---- | ---- |
+| 0                    6 | 10   | 2    |
+
+##### D：
+
+| w                                      c   | 总共 | 对齐 |
+| ------------------------------------------ | ---- | ---- |
+| 0                                       16 | 40   | 8    |
+
+##### E:
+
+| a                        t                          | 总共 | 对齐 |
+| --------------------------------------------------- | ---- | ---- |
+| 0                         20+4=24 (20<=最近的8对齐) | 40   | 8    |
+
+#### 3.45
+
+![image-20201107203142584](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107203142584.png)
+
+##### A:
+
+| 字段 | 大小 | 偏移量 |
+| ---- | ---- | ------ |
+| a    | 8    | 0      |
+| b    | 2    | 8      |
+| c    | 8    | 16     |
+| d    | 1    | 24     |
+| e    | 4    | 28     |
+| f    | 1    | 32     |
+| g    | 8    | 40     |
+| h    | 4    | 48     |
+
+##### B:
+
+48+4=52，结构体为确保内部元素对齐进行内部填充后是52字节，而结构体对齐是8，$52\leq$的大小中最小的8倍数是56，因此大小是56，后面要补充4个字节满足结构体对齐要求
+
+##### C：
+
+当所有数据元素长度都是2的幂时，为在对齐下压缩到最小，策略是按照大小降序排列结构元素
+
+```c
+struct{
+	char *a;
+    double c;
+    long g;
+    float e;
+    int h;
+    short b;
+    char d;
+    char f;
+}rec;
+```
+
+| 字段 | 大小 | 偏移量 |
+| ---- | ---- | ------ |
+| a    | 8    | 0      |
+| c    | 8    | 8      |
+| g    | 8    | 16     |
+| e    | 4    | 24     |
+| h    | 4    | 28     |
+| b    | 2    | 32     |
+| d    | 1    | 34     |
+| f    | 1    | 35     |
+
+大于等于36，是8的倍数，填充4字节，结构体大小是40
+
+
 
