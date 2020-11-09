@@ -1,3 +1,7 @@
+### 程序的机器级表示 练习题
+
+
+
 ####    3.6
 
 ![image-20201031215853009](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201031215853009.png)
