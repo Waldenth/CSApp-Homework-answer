@@ -4,7 +4,7 @@
 
 ####    3.6
 
-![image-20201031215853009](assets/image-20201031215853009.png)
+![image-20201031215853009](https://gitee.com/waldenth/blogimage/raw/master/img/image-20201031215853009.png)
 
 **答：**
 
@@ -22,7 +22,7 @@
 
 #### 3.7
 
-![image-20201031221320800](assets/image-20201031221320800.png)
+![image-20201031221320800](https://gitee.com/waldenth/blogimage/raw/master/img/image-20201031221320800.png)
 
 ```
 rax=x+4x=5x;
@@ -38,7 +38,7 @@ long t = 5*x+2*y+8*z;
 
 #### 3.8
 
-![image-20201031222310473](assets/image-20201031222310473.png)
+![image-20201031222310473](https://gitee.com/waldenth/blogimage/raw/master/img/image-20201031222310473.png)
 
 `addq %rcx,(%rax)`表示将内存`(%rax)`处的值减去`%rcx`，目的 0x100，值0xFF+0x1=0x100
 
@@ -54,7 +54,7 @@ long t = 5*x+2*y+8*z;
 
 #### 3.9
 
-![image-20201101135412460](assets/image-20201101135412460.png)
+![image-20201101135412460](https://gitee.com/waldenth/blogimage/raw/master/img/image-20201101135412460.png)
 
 ```ASM
 shift_ledt44_rightn:
