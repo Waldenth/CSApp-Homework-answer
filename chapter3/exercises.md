@@ -4,7 +4,7 @@
 
 ####    3.6
 
-![image-20201031215853009](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201031215853009.png)
+![image-20201031215853009](assets/image-20201031215853009.png)
 
 **答：**
 
@@ -22,7 +22,7 @@
 
 #### 3.7
 
-![image-20201031221320800](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201031221320800.png)
+![image-20201031221320800](assets/image-20201031221320800.png)
 
 ```
 rax=x+4x=5x;
@@ -38,7 +38,7 @@ long t = 5*x+2*y+8*z;
 
 #### 3.8
 
-![image-20201031222310473](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201031222310473.png)
+![image-20201031222310473](assets/image-20201031222310473.png)
 
 `addq %rcx,(%rax)`表示将内存`(%rax)`处的值减去`%rcx`，目的 0x100，值0xFF+0x1=0x100
 
@@ -54,7 +54,7 @@ long t = 5*x+2*y+8*z;
 
 #### 3.9
 
-![image-20201101135412460](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201101135412460.png)
+![image-20201101135412460](assets/image-20201101135412460.png)
 
 ```ASM
 shift_ledt44_rightn:
@@ -66,7 +66,7 @@ shift_ledt44_rightn:
 
 #### 3.10
 
-![image-20201101141926175](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201101141926175.png)
+![image-20201101141926175](assets/image-20201101141926175.png)
 
 ```asm
 orq rsi,rdi -> rdi=rsi | rdi -> x=x | y
@@ -87,7 +87,7 @@ long t4 = z-t3;
 
 #### 3.11
 
-![image-20201101142825696](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201101142825696.png)
+![image-20201101142825696](assets/image-20201101142825696.png)
 
 A: 用于将寄存器`rdx`清零
 
@@ -97,7 +97,7 @@ C: `xorq`版本代码需要3字节，而`movq`版本需要7字节，
 
 #### 3.12
 
-![image-20201102214113753](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201102214113753.png)
+![image-20201102214113753](assets/image-20201102214113753.png)
 
 64位汇编除法中64位被除数应该存在`%rax`中,无符号除法应该将`%rdx`设置为全0
 
@@ -115,7 +115,7 @@ uremdiv:
 
 #### 3.13
 
-![image-20201102215859787](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201102215859787.png)
+![image-20201102215859787](assets/image-20201102215859787.png)
 
 **汇编代码不会记录程序值的类型**
 
@@ -160,7 +160,7 @@ uremdiv:
 
 #### 3.15
 
-![image-20201102221614669](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201102221614669.png)
+![image-20201102221614669](assets/image-20201102221614669.png)
 
 ##### A:
 
@@ -188,7 +188,7 @@ ja指令占据两个字节, ja指令地址是 0x400543
 
 #### 3.16
 
-![image-20201102223851082](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201102223851082.png)
+![image-20201102223851082](assets/image-20201102223851082.png)
 
 ##### A:
 
@@ -210,7 +210,7 @@ void cond(long a,long *p){
 
 #### 3.17
 
-![image-20201102224507663](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201102224507663.png)
+![image-20201102224507663](assets/image-20201102224507663.png)
 
 ##### A：
 
@@ -259,7 +259,7 @@ long test(long x,long y,long z){
 
 #### 3.19
 
- ![image-20201103211410743](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103211410743.png)
+ ![image-20201103211410743](assets/image-20201103211410743.png)
 
 ##### A:
 
@@ -271,7 +271,7 @@ long test(long x,long y,long z){
 
 #### 3.20
 
-![image-20201103212608918](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103212608918.png)
+![image-20201103212608918](assets/image-20201103212608918.png)
 
 ##### A：
 
@@ -311,7 +311,7 @@ long test(long x,long y){
 
 #### 3.23
 
-![image-20201103220328090](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103220328090.png)
+![image-20201103220328090](assets/image-20201103220328090.png)
 
 ##### A:
 
@@ -371,9 +371,9 @@ long fun_a(unsigned long x){
 
 #### 3.32
 
-![image-20201103232211824](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103232211824.png)
+![image-20201103232211824](assets/image-20201103232211824.png)
 
-![image-20201103232222726](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201103232222726.png)
+![image-20201103232222726](assets/image-20201103232222726.png)
 
 | 标号 | PC       | 指令  | %rdi   | %rsi    | %rax | %rsp           | *%rsp    | 描述                       |
 | ---- | -------- | ----- | ------ | ------- | ---- | -------------- | -------- | -------------------------- |
@@ -389,7 +389,7 @@ long fun_a(unsigned long x){
 
 #### 3.33
 
-![image-20201106141335511](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201106141335511.png)
+![image-20201106141335511](assets/image-20201106141335511.png)
 
 若
 
@@ -415,7 +415,7 @@ int procprob(int b,short a,long * v,char *u);
 
 #### 3.34
 
-![image-20201106144905453](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201106144905453.png)
+![image-20201106144905453](assets/image-20201106144905453.png)
 
 ##### A:
 
@@ -431,7 +431,7 @@ int procprob(int b,short a,long * v,char *u);
 
 #### 3.35
 
-![image-20201107140937751](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107140937751.png)
+![image-20201107140937751](assets/image-20201107140937751.png)
 
 ##### A：
 
@@ -467,7 +467,7 @@ long rfun(unsigned long x){
 
 #### 3.36
 
-![image-20201107142315010](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107142315010.png)
+![image-20201107142315010](assets/image-20201107142315010.png)
 
 | 数组 | 元素大小(byte)X86-64 | 整个数组的大小 | 起始地址 | 元素i    |
 | ---- | -------------------- | -------------- | -------- | -------- |
@@ -479,7 +479,7 @@ long rfun(unsigned long x){
 
 #### 3.37
 
-![image-20201107142935160](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107142935160.png)
+![image-20201107142935160](assets/image-20201107142935160.png)
 
 | 表达式   | 类型   | 值            | 汇编代码                     |
 | -------- | ------ | ------------- | ---------------------------- |
@@ -491,7 +491,7 @@ long rfun(unsigned long x){
 
 #### 3.38
 
-![image-20201107144138239](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107144138239.png)
+![image-20201107144138239](assets/image-20201107144138239.png)
 
 ```asm
 ; long sum_element(long i,long j)
@@ -514,7 +514,7 @@ N=7，M=5
 
 #### 3.39
 
-![image-20201107150452642](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107150452642.png)
+![image-20201107150452642](assets/image-20201107150452642.png)
 
 公式3.1：
 $$
@@ -575,7 +575,7 @@ void sp_init(struct prob *sp){
 
 #### 3.42
 
-![image-20201107154210309](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107154210309.png)
+![image-20201107154210309](assets/image-20201107154210309.png)
 
 ELE结构体：
 
@@ -621,7 +621,7 @@ long fun (struct ELE *ptr){
 
 <img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107160413798.png" alt="image-20201107160413294" style="zoom:80%;" />
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107160427767.png" alt="image-20201107160427767" style="zoom: 33%;" />
+<img src="assets/image-20201107160427767.png" alt="image-20201107160427767" style="zoom: 33%;" />
 
 | expr                 | type   | 代码                                                         |
 | -------------------- | ------ | ------------------------------------------------------------ |
@@ -640,7 +640,7 @@ movl (%rdi,%rax,4),%eax; 将内存地址up+4*(*up)处的数据存入eax
 
 #### 3.44
 
-![image-20201107201242985](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107201242985.png)
+![image-20201107201242985](assets/image-20201107201242985.png)
 
 ##### A:
 
@@ -681,7 +681,7 @@ movl (%rdi,%rax,4),%eax; 将内存地址up+4*(*up)处的数据存入eax
 
 #### 3.45
 
-![image-20201107203142584](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201107203142584.png)
+![image-20201107203142584](assets/image-20201107203142584.png)
 
 ##### A:
 
@@ -734,7 +734,7 @@ struct{
 
 #### 3.46
 
-![image-20201108001153235](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201108001153235.png)
+![image-20201108001153235](assets/image-20201108001153235.png)
 
 ##### A:
 
@@ -782,7 +782,7 @@ struct{
 
 #### 3.47
 
-![image-20201108005235861](http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201108005235861.png)
+![image-20201108005235861](assets/image-20201108005235861.png)
 
 
 
@@ -795,6 +795,3 @@ b754 - d754 = 0x2000
 ##### B：
 
 128字节=$2^7$，因此需要$2^6=64$次尝试，这里可以看出 2.6.16版本的栈随机化只能很小程度的抵挡攻击
-
-
-

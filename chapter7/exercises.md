@@ -4,7 +4,7 @@
 
 #### 7.1
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201109224104840.png" alt="image-20201109224104840" style="zoom: 33%;" />
+<img src="assets/image-20201109224104840.png" alt="image-20201109224104840" style="zoom: 33%;" />
 
 | 符号    | `.symtab`条目 | 符号类型 | 在哪个模块定义 | 节       |
 | ------- | ------------- | -------- | -------------- | -------- |
@@ -16,7 +16,7 @@
 
 ####  7.2
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201109230802551.png" alt="image-20201109230802551" style="zoom: 33%;" />
+<img src="assets/image-20201109230802551.png" alt="image-20201109230802551" style="zoom: 33%;" />
 
 <img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201109230817243.png" alt="image-20201109230817243" style="zoom:33%;" />
 
@@ -47,7 +47,7 @@ REF(x.2)->DEF(x.2)
 
 #### 7.3
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201110153911933.png" alt="image-20201110153911933" style="zoom:50%;" />
+<img src="assets/image-20201110153911933.png" alt="image-20201110153911933" style="zoom:50%;" />
 
 ##### A：
 
@@ -74,7 +74,7 @@ linux> gcc p.o libx.a liby.a libx.a
 
 #### 7.4
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201110184549082.png" alt="image-20201110184549082" style="zoom:33%;" />
+<img src="assets/image-20201110184549082.png" alt="image-20201110184549082" style="zoom:33%;" />
 
 ##### A:
 
@@ -86,7 +86,7 @@ linux> gcc p.o libx.a liby.a libx.a
 
 #### 7.5
 
-<img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201110185320249.png" alt="image-20201110185320249" style="zoom: 33%;" />
+<img src="assets/image-20201110185320249.png" alt="image-20201110185320249" style="zoom: 33%;" />
 
 <img src="http://qixycp91n.hn-bkt.clouddn.com/picGo/image-20201110185333345.png" alt="image-20201110185333345" style="zoom:33%;" />
 
